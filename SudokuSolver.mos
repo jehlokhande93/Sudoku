@@ -1,0 +1,87 @@
+model Q1_Part7_Sudoku
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+!sample declarations section
+declarations
+! ...
+  Objective:linctr
+  N = 1 .. 9 
+  X: array(N, N, N) of mpvar
+end-declarations
+
+Objective := 0
+
+forall (i in N, j in N, k in N) do
+	X(i,j,k) is_binary
+end-do
+
+!Contraint to ensure every number is present once in a column
+forall(j in N, k in N) do
+	sum(i in N) X(i, j, k) = 1
+end-do
+
+!Contraint to ensure every number is present once in a row
+forall(i in N, k in N) do
+sum(j in N) X(i, j, k) = 1
+end-do
+
+!Contraint to ensure every number is present once in a box
+forall(k in N, p in 1..3 , q in 1..3) do
+sum (j in (3*p -2) ..(3*p)) sum (i in (3*q -2) ..(3*q))  X(i, j, k) = 1
+end-do
+
+!Constraint to ensure all values are filled in
+forall(i in N, j in N) do
+sum(k in N) X(i, j, k) = 1
+end-do
+
+!known values in the sudoku puzzle
+X(1, 1, 8) = 1
+X(2, 3, 3) = 1
+X(2, 4, 6) = 1
+X(3, 2, 7) = 1
+X(3, 5, 9) = 1
+X(3, 7, 2) = 1
+X(4, 2, 5) = 1
+X(4, 6, 7) = 1
+X(5, 5, 4) = 1
+X(5, 6, 5) = 1
+X(5, 7, 7) = 1
+X(6, 4, 1) = 1
+X(6, 8, 3) = 1
+X(7, 3, 1) = 1
+X(7, 8, 6) = 1
+X(7, 9, 8) = 1
+X(8, 3, 8) = 1
+X(8, 4, 5) = 1
+X(8, 8, 1) = 1
+X(9, 2, 9) = 1
+X(9, 7, 4) = 1
+
+
+minimize (Objective)
+
+
+
+writeln("Begin running model")
+!print output
+writeln("\n__________________________________")
+forall(i in N) do
+forall(j in N) do
+	forall(k in N) do
+		if (getsol(X(i,j,k)) = 1) then
+			write(k," | ")
+		end-if
+		
+	end-do
+	
+end-do
+if (i = 3 or i=6 or i=9) then
+writeln("\n__________________________________")
+end-if
+writeln("")
+end-do
+	
+writeln("End running model")
+
+end-model
